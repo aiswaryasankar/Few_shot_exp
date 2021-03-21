@@ -172,13 +172,20 @@ def prepare_nshot_task(n: int, k: int, q: int) -> Callable:
         """Create 0-k label and move to GPU.
         """
 
-        x, y, _ = batch
+        input_ids, attention_mask, label = batch
+        print("INPUT_IDS")
+        print(input_ids)
+        print("ATTENTION_MASK")
+        print(attention_mask)
+        print("LABEL")
+        print(label)
         # x = x.double().cuda()
-        x = x.double()
+        # x = x.double()
         # Create dummy 0-(num_classes - 1) label
         # y = create_nshot_task_label(k, q).cuda()
         y = create_nshot_task_label(k, q)
-        return x, y
+
+        return input_ids, attention_mask, label
 
     return prepare_nshot_task_
 
