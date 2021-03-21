@@ -243,6 +243,7 @@ class ClinicDataset(Dataset):
             pad_to_max_length=False,
             return_attention_mask=True,
             return_tensors='pt',
+            truncation=True
         )
 
         input_ids = pad_sequences(encoding['input_ids'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")

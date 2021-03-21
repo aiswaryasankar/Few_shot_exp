@@ -172,7 +172,7 @@ def prepare_nshot_task(n: int, k: int, q: int) -> Callable:
         input_ids, attention_mask, label = batch
         y = create_nshot_task_label(k, q)
 
-        return input_ids, attention_mask, label
+        return input_ids, attention_mask, y
 
     return prepare_nshot_task_
 
