@@ -87,10 +87,6 @@ class XLNetForEmbedding(nn.Module):
 
     def forward(self, input_ids, attention_mask):
         # last hidden layer
-        print("INPUT IDS")
-        print(input_ids)
-        print("ATTENTION_MASK")
-        print(attention_mask)
         last_hidden_state = self.xlnet(input_ids=input_ids,
                                     attention_mask=attention_mask)
         mean_last_hidden_state = self.pool_hidden_state(last_hidden_state)

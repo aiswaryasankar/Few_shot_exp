@@ -9,7 +9,8 @@ from few_shot.utils import pairwise_distances
 def proto_net_episode(model: Module,
                       optimiser: Optimizer,
                       loss_fn: Callable,
-                      x: torch.Tensor,
+                      input_ids: torch.Tensor,
+                      attention_mask: torch.Tensor,
                       y: torch.Tensor,
                       n_shot: int,
                       k_way: int,
@@ -42,7 +43,7 @@ def proto_net_episode(model: Module,
         model.eval()
 
     # Embed all samples
-    embeddings = model(x)
+    embeddings = model(input_ids, attention_mask)
 
     # Samples are ordered by the NShotWrapper class as follows:
     # k lots of n support samples from a particular class
