@@ -224,6 +224,7 @@ class ClinicDataset(Dataset):
 
         self.subset = subset
         self.df = self.process_data()
+        self.df = self.df.assign(id=self.df.index.values)
 
     def __len__(self):
         return len(self.text)
@@ -306,6 +307,9 @@ class ClinicDataset(Dataset):
             embedded.append(row)
 
         df = pd.DataFrame(embedded)
+        # df.index.name = 'id'
+        # print(df['text'])
+
         return df
 
 

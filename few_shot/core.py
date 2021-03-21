@@ -37,8 +37,6 @@ class NShotTaskSampler(Sampler):
         super(NShotTaskSampler, self).__init__(dataset)
         self.episodes_per_epoch = episodes_per_epoch
         self.dataset = dataset
-        print("dataset in the NShotTaskSampler")
-        print(self.dataset)
         if num_tasks < 1:
             raise ValueError('num_tasks must be > 1.')
 
@@ -58,6 +56,9 @@ class NShotTaskSampler(Sampler):
         for _ in range(self.episodes_per_epoch):
             batch = []
 
+            print("self.dataset.df")
+            print(self.dataset.df)
+
             for task in range(self.num_tasks):
                 if self.fixed_tasks is None:
                     # Get random classes
@@ -76,12 +77,12 @@ class NShotTaskSampler(Sampler):
                     support_k[k] = support
 
                     for i, s in support.iterrows():
-                        batch.append(s['id'])
+                        batch.append(s["id"])
 
                 for k in episode_classes:
                     query = df[(df['label'] == k) & (~df['id'].isin(support_k[k]['id']))].sample(self.q)
                     for i, q in query.iterrows():
-                        batch.append(q['id'])
+                        batch.append(q["id"])
 
             yield np.stack(batch)
 

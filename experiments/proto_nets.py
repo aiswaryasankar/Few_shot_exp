@@ -105,9 +105,6 @@ config_defaults = {
 
 wandb.init(config=config_defaults)
 
-
-
-
 #########
 # Model #
 #########
