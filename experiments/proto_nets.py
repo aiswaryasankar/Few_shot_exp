@@ -17,8 +17,8 @@ import wandb
 
 
 setup_dirs()
-# assert torch.cuda.is_available()
-# device = torch.device('cuda')
+assert torch.cuda.is_available()
+device = torch.device('cuda')
 torch.backends.cudnn.benchmark = True
 
 
@@ -109,7 +109,7 @@ wandb.init(config=config_defaults)
 # Model #
 #########
 model = XLNetForEmbedding(num_input_channels)
-# model.to(device, dtype=torch.double)
+model.to(device, dtype=torch.double)
 
 wandb.watch(model)
 
@@ -119,7 +119,7 @@ wandb.watch(model)
 ############
 print(f'Training Prototypical network on {args.dataset}...')
 optimiser = Adam(model.parameters(), lr=1e-3)
-# loss_fn = torch.nn.NLLLoss().cuda()
+loss_fn = torch.nn.NLLLoss().cuda()
 loss_fn = torch.nn.NLLLoss()
 
 
