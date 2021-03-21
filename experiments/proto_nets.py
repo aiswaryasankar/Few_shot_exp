@@ -5,7 +5,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 import argparse
 
-from few_shot.datasets import OmniglotDataset, MiniImageNet
+from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
 from few_shot.models import get_few_shot_encoder
 from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
 from few_shot.proto import proto_net_episode
@@ -48,6 +48,11 @@ elif args.dataset == 'miniImageNet':
     dataset_class = MiniImageNet
     num_input_channels = 3
     drop_lr_every = 40
+elif args.dataset == 'clinic150':
+    n_epochs = 80
+    dataset_class = ClinicDataset
+    num_input_channels = 3
+    drop_lr_every = 40
 else:
     raise(ValueError, 'Unsupported dataset')
 
@@ -59,13 +64,13 @@ print(param_str)
 ###################
 # Create datasets #
 ###################
-background = dataset_class('background')
-background_taskloader = DataLoader(
-    background,
-    batch_sampler=NShotTaskSampler(background, episodes_per_epoch, args.n_train, args.k_train, args.q_train),
+train_df = dataset_class('train')
+train_taskloader = DataLoader(
+    train_df,
+    batch_sampler=NShotTaskSampler(train_df, episodes_per_epoch, args.n_train, args.k_train, args.q_train),
     num_workers=4
 )
-evaluation = dataset_class('evaluation')
+evaluation = dataset_class('val')
 evaluation_taskloader = DataLoader(
     evaluation,
     batch_sampler=NShotTaskSampler(evaluation, episodes_per_epoch, args.n_test, args.k_test, args.q_test),

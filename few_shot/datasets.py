@@ -7,6 +7,15 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import os
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+import json
+import sys
+from pkgutil import simplegeneric
+from transformers import XLNetTokenizer, XLNetModel
+from keras.preprocessing.sequence import pad_sequences
+import torch
+from torch import nn
 
 from config import DATA_PATH
 
@@ -18,8 +27,8 @@ class OmniglotDataset(Dataset):
         # Arguments:
             subset: Whether the dataset represents the background or evaluation set
         """
-        if subset not in ('background', 'evaluation'):
-            raise(ValueError, 'subset must be one of (background, evaluation)')
+        if subset not in ('train', 'val'):
+            raise(ValueError, 'subset must be one of (train, val)')
         self.subset = subset
 
         self.df = pd.DataFrame(self.index_subset(self.subset))
@@ -100,8 +109,8 @@ class MiniImageNet(Dataset):
         # Arguments:
             subset: Whether the dataset represents the background or evaluation set
         """
-        if subset not in ('background', 'evaluation'):
-            raise(ValueError, 'subset must be one of (background, evaluation)')
+        if subset not in ('train', 'val'):
+            raise(ValueError, 'subset must be one of (train, val)')
         self.subset = subset
 
         self.df = pd.DataFrame(self.index_subset(self.subset))
@@ -204,3 +213,98 @@ class DummyDataset(Dataset):
     def __getitem__(self, item):
         class_id = item % self.n_classes
         return np.array([item] + [class_id]*self.n_features, dtype=np.float), float(class_id)
+
+
+class ClinicDataset(Dataset):
+
+    def __init__(self, subset):
+
+        if subset not in ('train', 'val', 'test'):
+            raise(ValueError, 'subset must be one of (train, val, test)')
+
+        self.subset = subset
+        self.df = pd.DataFrame(self.process_data()(self.subset))
+
+    def __len__(self):
+        return len(self.text)
+
+    def __getitem__(self, item):
+
+        text = str(self.text[item])
+        label = self.labels[item]
+
+        encoding = self.tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,
+            max_length=self.max_len,
+            return_token_type_ids=False,
+            pad_to_max_length=False,
+            return_attention_mask=True,
+            return_tensors='pt',
+        )
+
+        input_ids = pad_sequences(encoding['input_ids'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        input_ids = input_ids.astype(dtype = 'int64')
+        input_ids = torch.tensor(input_ids)
+
+        attention_mask = pad_sequences(encoding['attention_mask'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        attention_mask = attention_mask.astype(dtype = 'int64')
+        attention_mask = torch.tensor(attention_mask)
+
+        return [input_ids, attention_mask.flatten(), torch.tensor(label, dtype=torch.long)]
+
+    def process_data(subset):
+        """
+            Subset tells you whether to return train, val or test.
+        """
+        # Open a file: file
+        file = open('data_small.json',mode='r')
+        all_of_it = file.read()
+        label_mapping = {}
+
+        @simplegeneric
+        def get_items(obj):
+            while False: # no items, a scalar object
+                yield None
+
+        @get_items.register(dict)
+        def _(obj):
+            return obj.items() # json object. Edit: iteritems() was removed in Python 3
+
+        @get_items.register(list)
+        def _(obj):
+            return enumerate(obj) # json array
+
+        def strip_whitespace(json_data):
+            for key, value in get_items(json_data):
+                if hasattr(value, 'strip'): # json string
+                    json_data[key] = value.strip()
+                else:
+                    strip_whitespace(value) # recursive call
+
+        data = json.loads(all_of_it) # read json data from standard input
+        strip_whitespace(data)
+
+        labels = []
+        for text, label in data[subset]:
+            labels.append(label)
+
+        label_set = set(labels)
+        label_mapping = {}
+
+        index = 0
+        for label in label_set:
+            label_mapping[label] = index
+            index += 1
+
+        # Convert into dataframe
+        embedded = []
+
+        for text, label in data[subset]:
+            row = {"text": text, "label": label_mapping[label]}
+            train_embedded.append(row)
+
+        df = pd.DataFrame(embedded)
+
+
+
