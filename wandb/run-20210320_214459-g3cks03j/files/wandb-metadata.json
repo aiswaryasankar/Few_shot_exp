@@ -1,0 +1,29 @@
+{
+    "os": "macOS-10.15.7-x86_64-i386-64bit",
+    "python": "3.8.5",
+    "heartbeatAt": "2021-03-21T04:45:02.722396",
+    "startedAt": "2021-03-21T04:44:59.334502",
+    "docker": null,
+    "cpu_count": 12,
+    "cuda": null,
+    "args": [
+        "--dataset",
+        "clinic150",
+        "--k-test",
+        "5",
+        "--n-test",
+        "5"
+    ],
+    "state": "running",
+    "program": "/Users/aiswarya.s/Desktop/few-shot/experiments/proto_nets.py",
+    "codePath": "experiments/proto_nets.py",
+    "git": {
+        "remote": "https://github.com/aiswaryasankar/Few_shot_exp.git",
+        "commit": "b12cd05c527344b77ed42a5e4fba78ad78566fcd"
+    },
+    "email": "aiswarya.s@uber.com",
+    "root": "/Users/aiswarya.s/Desktop/few-shot",
+    "host": "aiswarya-s-C02DVCPWMD6M",
+    "username": "aiswarya.s",
+    "executable": "/Users/aiswarya.s/opt/anaconda3/bin/python"
+}

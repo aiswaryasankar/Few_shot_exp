@@ -223,7 +223,7 @@ class ClinicDataset(Dataset):
             raise(ValueError, 'subset must be one of (train, val, test)')
 
         self.subset = subset
-        self.df = pd.DataFrame(self.process_data()(self.subset))
+        self.df = pd.DataFrame(self.process_data())
 
     def __len__(self):
         return len(self.text)
@@ -253,12 +253,13 @@ class ClinicDataset(Dataset):
 
         return [input_ids, attention_mask.flatten(), torch.tensor(label, dtype=torch.long)]
 
-    def process_data(subset):
+    def process_data(self):
         """
             Subset tells you whether to return train, val or test.
         """
         # Open a file: file
-        file = open('data_small.json',mode='r')
+        fileName = os.getcwd() + '/data_small.json'
+        file = open(fileName, mode='r')
         all_of_it = file.read()
         label_mapping = {}
 
@@ -286,7 +287,7 @@ class ClinicDataset(Dataset):
         strip_whitespace(data)
 
         labels = []
-        for text, label in data[subset]:
+        for text, label in data[self.subset]:
             labels.append(label)
 
         label_set = set(labels)
@@ -300,9 +301,9 @@ class ClinicDataset(Dataset):
         # Convert into dataframe
         embedded = []
 
-        for text, label in data[subset]:
+        for text, label in data[self.subset]:
             row = {"text": text, "label": label_mapping[label]}
-            train_embedded.append(row)
+            embedded.append(row)
 
         df = pd.DataFrame(embedded)
 

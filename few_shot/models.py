@@ -3,6 +3,7 @@ import numpy as np
 import torch.nn.functional as F
 import torch
 from typing import Dict
+from transformers import XLNetModel
 
 
 ##########
@@ -75,6 +76,33 @@ def functional_conv_block(x: torch.Tensor, weights: torch.Tensor, biases: torch.
 ##########
 # Models #
 ##########
+
+class XLNetForEmbedding(nn.Module):
+    """
+        Creates a model that will return text embeddings.
+    """
+    def __init__(self, num_labels):
+        super(XLNetForEmbedding, self).__init__()
+        self.xlnet = XLNetModel.from_pretrained('xlnet-base-cased')
+
+    def forward(self, input_ids, attention_mask=None):
+        # last hidden layer
+        last_hidden_state = self.xlnet(input_ids=input_ids,
+                                    attention_mask=attention_mask)
+        mean_last_hidden_state = self.pool_hidden_state(last_hidden_state)
+
+        return mean_last_hidden_state
+
+    def pool_hidden_state(self, last_hidden_state):
+
+        """
+        Pool the output vectors into a single mean vector
+        """
+        last_hidden_state = last_hidden_state[0]
+        mean_last_hidden_state = torch.mean(last_hidden_state, 1)
+        return mean_last_hidden_state
+
+
 def get_few_shot_encoder(num_input_channels=1) -> nn.Module:
     """Creates a few shot encoder as used in Matching and Prototypical Networks
 

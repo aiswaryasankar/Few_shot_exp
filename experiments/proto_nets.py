@@ -6,18 +6,19 @@ from torch.utils.data import DataLoader
 import argparse
 
 from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
-from few_shot.models import get_few_shot_encoder
+from few_shot.models import XLNetForEmbedding
 from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
 from few_shot.proto import proto_net_episode
 from few_shot.train import fit
 from few_shot.callbacks import *
 from few_shot.utils import setup_dirs
 from config import PATH
+import wandb
 
 
 setup_dirs()
-assert torch.cuda.is_available()
-device = torch.device('cuda')
+# assert torch.cuda.is_available()
+# device = torch.device('cuda')
 torch.backends.cudnn.benchmark = True
 
 
@@ -67,22 +68,55 @@ print(param_str)
 train_df = dataset_class('train')
 train_taskloader = DataLoader(
     train_df,
-    batch_sampler=NShotTaskSampler(train_df, episodes_per_epoch, args.n_train, args.k_train, args.q_train),
+    batch_sampler=NShotTaskSampler("train", episodes_per_epoch, args.n_train, args.k_train, args.q_train),
     num_workers=4
 )
 evaluation = dataset_class('val')
 evaluation_taskloader = DataLoader(
     evaluation,
-    batch_sampler=NShotTaskSampler(evaluation, episodes_per_epoch, args.n_test, args.k_test, args.q_test),
+    batch_sampler=NShotTaskSampler("val", episodes_per_epoch, args.n_test, args.k_test, args.q_test),
     num_workers=4
 )
+
+#########
+# Wandb #
+#########
+sweep_config = {
+    'method': 'grid', #grid, random
+    'metric': {
+      'name': 'accuracy',
+      'goal': 'maximize'
+    },
+    'parameters': {
+        'learning_rate': {
+            'values': [0.0001, 0.00001, 0.000001]
+        },
+        'optimizer': {
+            'values': ['adam', 'sgd']
+        },
+        "batch_size": {
+            'values': [8,16]
+        }
+    }
+}
+config_defaults = {
+      'learning_rate': 0.00001,
+      'optimizer': 'adam',
+      'batch_size': 16,
+  }
+
+wandb.init(config=config_defaults)
+
+
 
 
 #########
 # Model #
 #########
-model = get_few_shot_encoder(num_input_channels)
-model.to(device, dtype=torch.double)
+model = XLNetForEmbedding(num_input_channels)
+# model.to(device, dtype=torch.double)
+
+wandb.watch(model)
 
 
 ############
@@ -90,7 +124,8 @@ model.to(device, dtype=torch.double)
 ############
 print(f'Training Prototypical network on {args.dataset}...')
 optimiser = Adam(model.parameters(), lr=1e-3)
-loss_fn = torch.nn.NLLLoss().cuda()
+# loss_fn = torch.nn.NLLLoss().cuda()
+loss_fn = torch.nn.NLLLoss()
 
 
 def lr_schedule(epoch, lr):
@@ -125,7 +160,7 @@ fit(
     optimiser,
     loss_fn,
     epochs=n_epochs,
-    dataloader=background_taskloader,
+    dataloader=train_taskloader,
     prepare_batch=prepare_nshot_task(args.n_train, args.k_train, args.q_train),
     callbacks=callbacks,
     metrics=['categorical_accuracy'],
