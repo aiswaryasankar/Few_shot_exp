@@ -120,6 +120,8 @@ wandb.init(config=config_defaults)
 
 torch.cuda.empty_cache()
 
+print(dir(nvidia_smi))
+
 nvidia_smi.nvmlInit()
 handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
 mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
