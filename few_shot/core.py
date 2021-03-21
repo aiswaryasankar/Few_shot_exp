@@ -61,25 +61,25 @@ class NShotTaskSampler(Sampler):
             for task in range(self.num_tasks):
                 if self.fixed_tasks is None:
                     # Get random classes
-                    episode_classes = np.random.choice(self.dataset.df['class_id'].unique(), size=self.k, replace=False)
+                    episode_classes = np.random.choice(self.dataset.df['label'].unique(), size=self.k, replace=False)
                 else:
                     # Loop through classes in fixed_tasks
                     episode_classes = self.fixed_tasks[self.i_task % len(self.fixed_tasks)]
                     self.i_task += 1
 
-                df = self.dataset.df[self.dataset.df['class_id'].isin(episode_classes)]
+                df = self.dataset.df[self.dataset.df['label'].isin(episode_classes)]
 
                 support_k = {k: None for k in episode_classes}
                 for k in episode_classes:
                     # Select support examples
-                    support = df[df['class_id'] == k].sample(self.n)
+                    support = df[df['label'] == k].sample(self.n)
                     support_k[k] = support
 
                     for i, s in support.iterrows():
                         batch.append(s['id'])
 
                 for k in episode_classes:
-                    query = df[(df['class_id'] == k) & (~df['id'].isin(support_k[k]['id']))].sample(self.q)
+                    query = df[(df['label'] == k) & (~df['id'].isin(support_k[k]['id']))].sample(self.q)
                     for i, q in query.iterrows():
                         batch.append(q['id'])
 
