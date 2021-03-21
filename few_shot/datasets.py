@@ -223,7 +223,7 @@ class ClinicDataset(Dataset):
             raise(ValueError, 'subset must be one of (train, val, test)')
 
         self.subset = subset
-        self.df = pd.DataFrame(self.process_data())
+        self.df = self.process_data()
 
     def __len__(self):
         return len(self.text)
@@ -306,6 +306,7 @@ class ClinicDataset(Dataset):
             embedded.append(row)
 
         df = pd.DataFrame(embedded)
+        return df
 
 
 

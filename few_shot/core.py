@@ -37,11 +37,13 @@ class NShotTaskSampler(Sampler):
         super(NShotTaskSampler, self).__init__(dataset)
         self.episodes_per_epoch = episodes_per_epoch
         self.dataset = dataset
+        print("dataset in the NShotTaskSampler")
+        print(self.dataset)
         if num_tasks < 1:
             raise ValueError('num_tasks must be > 1.')
 
         self.num_tasks = num_tasks
-        # TODO: Raise errors if initialise badly
+        # TODO: Raise errors if initialized badly
         self.k = k
         self.n = n
         self.q = q
