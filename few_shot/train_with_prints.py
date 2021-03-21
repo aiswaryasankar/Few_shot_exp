@@ -104,10 +104,6 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    try:
-        print('Before Callback: ', torch.cuda.memory_allocated() / torch.cuda.max_memory_allocated())
-    except:
-        pass
 
     callbacks = CallbackList([DefaultCallback(), ] + (callbacks or []) + [ProgressBarLogger(), ])
     callbacks.set_model(model)
@@ -121,10 +117,6 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
         'optimiser': optimiser
     })
     
-    try:
-        print('After Callback: ', torch.cuda.memory_allocated() / torch.cuda.max_memory_allocated())
-    except:
-        pass
 
     if verbose:
         print('Begin training...')
@@ -155,7 +147,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('Before Loss') 
-                print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+                !nvidia-smi
             except:
                 pass         
 
@@ -164,7 +156,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('Before Grad') 
-                print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+                !nvidia-smi
             except:
                 pass            
                                 
@@ -181,7 +173,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             try:
                 print('After Tensor Delete') 
-                print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+                !nvidia-smi
             except:
                 pass             
 

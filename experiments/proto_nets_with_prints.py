@@ -120,7 +120,7 @@ torch.cuda.empty_cache()
 
 try:
     print('Before Model Move') 
-    print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+    !nvidia-smi
 except:
     pass
     
@@ -128,10 +128,10 @@ from transformers import XLNetForSequenceClassification, AdamW
 
 
 model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=150)
-#model.cuda()    
+model.cuda()    
 
 #model = XLNetForEmbedding(num_input_channels)
-model.to(device, dtype=torch.double)
+#model.to(device, dtype=torch.double)
 
 param_optimizer = list(model.named_parameters())
 no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -145,7 +145,7 @@ optimizer_grouped_parameters = [
 
 try:
     print('After Model Move') 
-    print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+    !nvidia-smi
 except:
     pass
 
@@ -197,7 +197,7 @@ callbacks = [
 
 try:
     print('Before Fit') 
-    print(torch.cuda.memory_allocated() , torch.cuda.max_memory_allocated())
+    !nvidia-smi
 except:
     pass
 
