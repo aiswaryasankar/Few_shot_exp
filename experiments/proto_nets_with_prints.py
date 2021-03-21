@@ -15,6 +15,8 @@ from few_shot.utils import setup_dirs
 from config import PATH
 import wandb
 
+import nvidia_smi
+
 
 setup_dirs()
 assert torch.cuda.is_available()
@@ -118,9 +120,16 @@ wandb.init(config=config_defaults)
 
 torch.cuda.empty_cache()
 
+nvidia_smi.nvmlInit()
+handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+
+
+
 try:
     print('Before Model Move') 
-    !nvidia-smi
+    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
 except:
     pass
     
@@ -145,7 +154,8 @@ optimizer_grouped_parameters = [
 
 try:
     print('After Model Move') 
-    !nvidia-smi
+    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
 except:
     pass
 
@@ -197,7 +207,8 @@ callbacks = [
 
 try:
     print('Before Fit') 
-    !nvidia-smi
+    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
 except:
     pass
 

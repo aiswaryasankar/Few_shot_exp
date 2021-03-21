@@ -147,7 +147,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('Before Loss') 
-                !nvidia-smi
+                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
             except:
                 pass         
 
@@ -156,7 +157,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('Before Grad') 
-                !nvidia-smi
+                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
             except:
                 pass            
                                 
@@ -173,7 +175,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             try:
                 print('After Tensor Delete') 
-                !nvidia-smi
+                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
+                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
             except:
                 pass             
 
