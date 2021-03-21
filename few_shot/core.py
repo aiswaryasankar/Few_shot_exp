@@ -56,9 +56,6 @@ class NShotTaskSampler(Sampler):
         for _ in range(self.episodes_per_epoch):
             batch = []
 
-            print("self.dataset.df")
-            print(self.dataset.df)
-
             for task in range(self.num_tasks):
                 if self.fixed_tasks is None:
                     # Get random classes

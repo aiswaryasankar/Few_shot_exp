@@ -308,8 +308,6 @@ class ClinicDataset(Dataset):
             embedded.append(row)
 
         df = pd.DataFrame(embedded)
-        # df.index.name = 'id'
-        # print(df['text'])
 
         return df
 

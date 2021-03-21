@@ -110,7 +110,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             callbacks.on_batch_begin(batch_index, batch_logs)
 
             input_ids, attention_mask, label = prepare_batch(batch)
-
+            input_ids = torch.squeeze(input_ids, dim=1)
+            attention_mask = torch.squeeze(attention_mask, dim=1)
 
             loss, y_pred = fit_function(model, optimiser, loss_fn, input_ids, attention_mask, label, **fit_function_kwargs)
             batch_logs['loss'] = loss.item()
