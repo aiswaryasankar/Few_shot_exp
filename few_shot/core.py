@@ -170,13 +170,14 @@ def prepare_nshot_task(n: int, k: int, q: int) -> Callable:
     """
     def prepare_nshot_task_(batch: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
         """Create 0-k label and move to GPU.
-
-        TODO: Move to arbitrary device
         """
-        x, y = batch
-        x = x.double().cuda()
+
+        x, y, _ = batch
+        # x = x.double().cuda()
+        x = x.double()
         # Create dummy 0-(num_classes - 1) label
-        y = create_nshot_task_label(k, q).cuda()
+        # y = create_nshot_task_label(k, q).cuda()
+        y = create_nshot_task_label(k, q)
         return x, y
 
     return prepare_nshot_task_

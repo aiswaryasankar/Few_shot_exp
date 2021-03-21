@@ -225,14 +225,15 @@ class ClinicDataset(Dataset):
         self.subset = subset
         self.df = self.process_data()
         self.df = self.df.assign(id=self.df.index.values)
+        self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
+        self.max_len = 64
 
     def __len__(self):
         return len(self.text)
 
     def __getitem__(self, item):
-
-        text = str(self.text[item])
-        label = self.labels[item]
+        text = str(self.df["text"][item])
+        label = self.df["label"][item]
 
         encoding = self.tokenizer.encode_plus(
             text,
