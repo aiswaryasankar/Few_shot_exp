@@ -15,7 +15,36 @@ from few_shot.utils import setup_dirs
 from config import PATH
 import wandb
 
+import sys
+print("Python version")
+print (sys.version)
+
+
+import subprocess
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    
+
+
+install('nvidia-ml-py3')
+
+from inspect import getmembers, isfunction
 import nvidia_smi
+
+
+functions_list = [o for o in getmembers(nvidia_smi, isfunction) if 'Init' in o[0]]
+
+print(functions_list) 
+
+try:
+    print('try 1 ')
+    nvidia_smi.nvmlInit()
+    print('try 2')
+except:
+    print('except')
+    
+
 
 
 setup_dirs()
@@ -120,12 +149,11 @@ wandb.init(config=config_defaults)
 
 torch.cuda.empty_cache()
 
-print(dir(nvidia_smi))
 
-nvidia_smi.nvmlInit()
 handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+print('Handle')
 mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-
+print('mem_res')
 
 
 try:
