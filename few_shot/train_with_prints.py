@@ -131,9 +131,9 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 #        train_iter = iter(dataloader)
 #        first_batch = next(train_iter)
 
-        for obj in gc.get_objects():
-            if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-                del obj
+#        for obj in gc.get_objects():
+#            if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+#                del obj
         torch.cuda.empty_cache() 
         
         for batch_index, batch in enumerate(dataloader):
@@ -178,9 +178,9 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             callbacks.on_batch_end(batch_index, batch_logs)
             
-            for obj in gc.get_objects():
-                if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
-                    del obj
+ #           for obj in gc.get_objects():
+ #               if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+ #                   del obj
             torch.cuda.empty_cache()   
 
             try:
