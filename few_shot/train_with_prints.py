@@ -25,6 +25,7 @@ def gradient_step(model: Module, optimiser: Optimizer, loss_fn: Callable, x: tor
         x: Input samples
         y: Input targets
     """
+    print('Before Train Called')    
     model.train()
     print('Train Called')
     optimiser.zero_grad()
@@ -151,8 +152,12 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             label = label.to(device)
             
             print('input_ids shape: ', input_ids.size())
-            print('attention_mask shape: ', input_ids.size())
-            print('label shape: ', input_ids.size())
+            print('attention_mask shape: ', attention_mask.size())
+            print('label shape: ', label.size())
+            
+            input_ids = input_ids[:8,:]
+            attention_mask = attention_mask[:8,:]
+            label = label[:8,:]
             
             
             try:
