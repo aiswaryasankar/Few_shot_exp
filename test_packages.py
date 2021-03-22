@@ -21,8 +21,9 @@ functions_list = [o for o in getmembers(nvidia_smi, isfunction) if 'Init' in o[0
 print(functions_list) 
 
 try:
-    print('try')
+    print('try 1 ')
     nvidia_smi.nvmlInit()
+    print('try 2 ')
 except:
     print('except')
     nvidia_smi.nvmlInit
