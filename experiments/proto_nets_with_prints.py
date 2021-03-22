@@ -1,19 +1,6 @@
 """
 Reproduce Omniglot results of Snell et al Prototypical networks.
 """
-from torch.optim import Adam
-from torch.utils.data import DataLoader
-import argparse
-
-from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
-from few_shot.models import XLNetForEmbedding
-from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
-from few_shot.proto import proto_net_episode
-from few_shot.train_with_prints import fit
-from few_shot.callbacks import *
-from few_shot.utils import setup_dirs
-from config import PATH
-import wandb
 
 import sys
 print("Python version")
@@ -42,7 +29,29 @@ try:
     nvidia_smi.nvmlInit()
     print('try 2')
 except as e:
-    print('except', e)
+    print('except: ', e)
+    
+    
+handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+print('Handle')
+mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+print('mem_res')    
+
+from torch.optim import Adam
+from torch.utils.data import DataLoader
+import argparse
+
+from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
+from few_shot.models import XLNetForEmbedding
+from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
+from few_shot.proto import proto_net_episode
+from few_shot.train_with_prints import fit
+from few_shot.callbacks import *
+from few_shot.utils import setup_dirs
+from config import PATH
+import wandb
+
+
     
 
 
@@ -150,10 +159,7 @@ wandb.init(config=config_defaults)
 torch.cuda.empty_cache()
 
 
-handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
-print('Handle')
-mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-print('mem_res')
+
 
 
 try:
