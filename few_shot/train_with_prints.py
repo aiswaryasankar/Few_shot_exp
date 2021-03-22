@@ -70,7 +70,7 @@ def batch_metrics(model: Module, y_pred: torch.Tensor, y: torch.Tensor, metrics:
 
 def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dataloader: DataLoader,
         prepare_batch: Callable, metrics: List[Union[str, Callable]] = None, callbacks: List[Callback] = None,
-        verbose: bool =True, fit_function: Callable = gradient_step, fit_function_kwargs: dict = {}):
+        verbose: bool =True, fit_function: Callable = gradient_step, nvgpu = nvgpu, fit_function_kwargs: dict = {}):
     """Function to abstract away training loop.
 
     The benefit of this function is that allows training scripts to be much more readable and allows for easy re-use of
@@ -130,6 +130,11 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
         
 #        train_iter = iter(dataloader)
 #        first_batch = next(train_iter)
+
+        for obj in gc.get_objects():
+            if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
+                del obj
+        torch.cuda.empty_cache() 
         
         for batch_index, batch in enumerate(dataloader):
 
@@ -145,10 +150,15 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             attention_mask = attention_mask.to(device)
             label = label.to(device)
             
+            print('input_ids shape: ', input_ids.size())
+            print('attention_mask shape: ', input_ids.size())
+            print('label shape: ', input_ids.size())
+            
+            
             try:
-                print('Before Loss') 
-                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+                print('Before Loss/Pred') 
+                gpu_dict =  nvgpu.gpu_info()[0]
+                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass         
 
@@ -156,9 +166,9 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             batch_logs['loss'] = loss.item()
             
             try:
-                print('Before Grad') 
-                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+                print('After Loss/Pred') 
+                gpu_dict =  nvgpu.gpu_info()[0]
+                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass            
                                 
@@ -175,8 +185,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             try:
                 print('After Tensor Delete') 
-                print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-                print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+                gpu_dict =  nvgpu.gpu_info()[0]
+                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass             
 

@@ -15,9 +15,11 @@ def install(package):
 
 
 install('nvidia-ml-py3')
+install('nvgpu')
 
 from inspect import getmembers, isfunction
 import nvidia_smi
+import nvgpu
 
 
 functions_list = [o for o in getmembers(nvidia_smi, isfunction) if 'Init' in o[0]]
@@ -36,6 +38,9 @@ handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
 print('Handle')
 mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
 print('mem_res')    
+
+
+
 
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -164,8 +169,8 @@ torch.cuda.empty_cache()
 
 try:
     print('Before Model Move') 
-    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+    gpu_dict =  nvgpu.gpu_info()[0]
+    print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
     
@@ -190,8 +195,8 @@ optimizer_grouped_parameters = [
 
 try:
     print('After Model Move') 
-    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+    gpu_dict =  nvgpu.gpu_info()[0]
+    print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
 
@@ -243,8 +248,8 @@ callbacks = [
 
 try:
     print('Before Fit') 
-    print(f'mem: {mem_res.used / (1024**2)} (GiB)') # usage in GiB
-    print(f'mem: {100 * (mem_res.used / mem_res.total):.3f}%') # percentage usage
+    gpu_dict =  nvgpu.gpu_info()[0]
+    print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
 
