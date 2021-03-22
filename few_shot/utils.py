@@ -5,6 +5,17 @@ from typing import Tuple, List
 
 from config import EPSILON, PATH
 
+import subprocess
+
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    
+install('nvgpu')
+    
+def get_gpu_info():
+    return nvgpu.gpu_info()[0]
+
+
 
 def mkdir(dir):
     """Create a directory, ignoring exceptions

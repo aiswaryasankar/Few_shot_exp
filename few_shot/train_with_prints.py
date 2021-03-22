@@ -11,7 +11,7 @@ from typing import Callable, List, Union
 
 from few_shot.callbacks import DefaultCallback, ProgressBarLogger, CallbackList, Callback
 from few_shot.metrics import NAMED_METRICS
-
+from few_shot.utils import get_gpu_info
 
 
 
@@ -70,7 +70,7 @@ def batch_metrics(model: Module, y_pred: torch.Tensor, y: torch.Tensor, metrics:
 
 def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dataloader: DataLoader,
         prepare_batch: Callable, metrics: List[Union[str, Callable]] = None, callbacks: List[Callback] = None,
-        verbose: bool =True, fit_function: Callable = gradient_step, nvgpu = nvgpu, fit_function_kwargs: dict = {}):
+        verbose: bool =True, fit_function: Callable = gradient_step, fit_function_kwargs: dict = {}):
     """Function to abstract away training loop.
 
     The benefit of this function is that allows training scripts to be much more readable and allows for easy re-use of
@@ -157,7 +157,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('Before Loss/Pred') 
-                gpu_dict =  nvgpu.gpu_info()[0]
+                gpu_dict =  get_gpu_info()
                 print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass         
@@ -167,7 +167,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             
             try:
                 print('After Loss/Pred') 
-                gpu_dict =  nvgpu.gpu_info()[0]
+                gpu_dict =  get_gpu_info()
                 print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass            
@@ -185,7 +185,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             try:
                 print('After Tensor Delete') 
-                gpu_dict =  nvgpu.gpu_info()[0]
+                gpu_dict =  get_gpu_info()
                 print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
             except:
                 pass             

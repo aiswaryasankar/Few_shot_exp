@@ -2,43 +2,6 @@
 Reproduce Omniglot results of Snell et al Prototypical networks.
 """
 
-import sys
-print("Python version")
-print (sys.version)
-
-
-import subprocess
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-    
-
-
-install('nvidia-ml-py3')
-install('nvgpu')
-
-from inspect import getmembers, isfunction
-import nvidia_smi
-import nvgpu
-
-
-functions_list = [o for o in getmembers(nvidia_smi, isfunction) if 'Init' in o[0]]
-
-print(functions_list) 
-
-try:
-    print('try 1 ')
-    nvidia_smi.nvmlInit()
-    print('try 2')
-except:
-    print('except: ', e)
-    
-    
-handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
-print('Handle')
-mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-print('mem_res')    
-
 
 
 
@@ -53,12 +16,13 @@ from few_shot.proto import proto_net_episode
 from few_shot.train_with_prints import fit
 from few_shot.callbacks import *
 from few_shot.utils import setup_dirs
+from few_shot.utils import get_gpu_info
 from config import PATH
 import wandb
 
 
-    
-
+gpu_dict =  get_gpu_info()
+print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 
 
 setup_dirs()
@@ -169,7 +133,7 @@ torch.cuda.empty_cache()
 
 try:
     print('Before Model Move') 
-    gpu_dict =  nvgpu.gpu_info()[0]
+    gpu_dict =  get_gpu_info()
     print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
@@ -195,7 +159,7 @@ optimizer_grouped_parameters = [
 
 try:
     print('After Model Move') 
-    gpu_dict =  nvgpu.gpu_info()[0]
+    gpu_dict =  get_gpu_info()
     print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
@@ -248,7 +212,7 @@ callbacks = [
 
 try:
     print('Before Fit') 
-    gpu_dict =  nvgpu.gpu_info()[0]
+    gpu_dict =  get_gpu_info()
     print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
 except:
     pass
