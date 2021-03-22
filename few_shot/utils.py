@@ -12,6 +12,8 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     
 install('nvgpu')
+
+import nvgpu
     
 def get_gpu_info():
     return nvgpu.gpu_info()[0]
