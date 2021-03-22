@@ -28,7 +28,7 @@ try:
     print('try 1 ')
     nvidia_smi.nvmlInit()
     print('try 2')
-except as e:
+except:
     print('except: ', e)
     
     
