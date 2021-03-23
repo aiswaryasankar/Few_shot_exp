@@ -180,7 +180,7 @@ optimiser = Adam(model.parameters(), lr=1e-3)
 #max_grad_norm = 1.0
 
 
-#loss_fn = torch.nn.NLLLoss()
+loss_fn = torch.nn.NLLLoss()
 
 
 def lr_schedule(epoch, lr):
