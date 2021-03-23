@@ -157,9 +157,9 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
             print('attention_mask shape: ', attention_mask.size())
             print('label shape: ', label.size())
             
-            input_ids = input_ids[:8,:]
-            attention_mask = attention_mask[:8,:]
-            label = label[:8]
+  #          input_ids = input_ids[:8,:]
+  #          attention_mask = attention_mask[:8,:]
+  #          label = label[:8]
   
             print('input_ids shape: ', input_ids.size())
             print('attention_mask shape: ', attention_mask.size())
