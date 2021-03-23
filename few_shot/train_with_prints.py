@@ -140,6 +140,8 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
         for batch_index, batch in enumerate(dataloader):
 
             batch_logs = dict(batch=batch_index, size=(batch_size or 1))
+            
+            print('batch size: ' , batch.size()) 
 
             callbacks.on_batch_begin(batch_index, batch_logs)
 
