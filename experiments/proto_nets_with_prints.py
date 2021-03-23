@@ -46,7 +46,7 @@ parser.add_argument('--q-test', default=1, type=int)
 args = parser.parse_args()
 
 evaluation_episodes = 1000
-episodes_per_epoch = 5
+episodes_per_epoch = 100
 
 if args.dataset == 'omniglot':
     n_epochs = 40
@@ -59,10 +59,10 @@ elif args.dataset == 'miniImageNet':
     num_input_channels = 3
     drop_lr_every = 40
 elif args.dataset == 'clinic150':
-    n_epochs = 2
+    n_epochs = 5
     dataset_class = ClinicDataset
     num_input_channels = 150
-    drop_lr_every = 1
+    drop_lr_every = 2
 else:
     raise(ValueError, 'Unsupported dataset')
 
@@ -138,21 +138,21 @@ try:
 except:
     pass
     
-from transformers import XLNetForSequenceClassification, AdamW
+#from transformers import XLNetForSequenceClassification, AdamW
 
 
-model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=150)
-model.cuda()    
+#model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=150)
+#model.cuda()    
 
-#model = XLNetForEmbedding(num_input_channels)
-#model.to(device, dtype=torch.double)
+model = XLNetForEmbedding(num_input_channels)
+model.to(device, dtype=torch.double)
 
-param_optimizer = list(model.named_parameters())
-no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-optimizer_grouped_parameters = [
-                                {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-                                {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay':0.0}
-]
+#param_optimizer = list(model.named_parameters())
+#no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+#optimizer_grouped_parameters = [
+#                                {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+#                                {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay':0.0}
+#]
 
 
 
@@ -171,13 +171,13 @@ wandb.watch(model)
 # Training #
 ############
 print(f'Training Prototypical network on {args.dataset}...')
-#optimiser = Adam(model.parameters(), lr=1e-3)
-optimiser = AdamW(optimizer_grouped_parameters, lr=3e-5)
+optimiser = Adam(model.parameters(), lr=1e-3)
+#optimiser = AdamW(optimizer_grouped_parameters, lr=3e-5)
 #loss_fn = torch.nn.NLLLoss().cuda()
 
-loss_fn = torch.nn.CrossEntropyLoss()
+#loss_fn = torch.nn.CrossEntropyLoss()
 
-max_grad_norm = 1.0
+#max_grad_norm = 1.0
 
 
 #loss_fn = torch.nn.NLLLoss()

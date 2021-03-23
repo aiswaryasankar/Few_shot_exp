@@ -30,22 +30,22 @@ def gradient_step(model: Module, optimiser: Optimizer, loss_fn: Callable, x: tor
     print('Train Called')
     optimiser.zero_grad()
     
-#    y_pred = model(x)
-    outputs = model(x)
-    print('Output')
-    logits = outputs[0]
-    print('Logits')
-#    loss = loss_fn(y_pred, y)
-    loss = loss_fn(logits, y)
+    y_pred = model(x)
+#    outputs = model(x)
+    print('y_pred')
+#    logits = outputs[0]
+#    print('Logits')
+    loss = loss_fn(y_pred, y)
+#    loss = loss_fn(logits, y)
     print('Loss')
     loss.backward()
     print('backward')
-    torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=1.0)
-    print('clip grad')
+#    torch.nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=1.0)
+#    print('clip grad')
     optimiser.step()
     print('Step')
 
-    return loss, logits
+    return loss, y_pred
 
 
 def batch_metrics(model: Module, y_pred: torch.Tensor, y: torch.Tensor, metrics: List[Union[str, Callable]],
