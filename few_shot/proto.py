@@ -87,5 +87,6 @@ def compute_prototypes(support: torch.Tensor, k: int, n: int) -> torch.Tensor:
     """
     # Reshape so the first dimension indexes by class then take the mean
     # along that dimension to generate the "prototypes" for each class
+    print('support size:' , support.size())
     class_prototypes = support.reshape(k, n, -1).mean(dim=1)
     return class_prototypes
