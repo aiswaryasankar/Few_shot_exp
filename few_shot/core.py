@@ -130,14 +130,15 @@ class EvaluateFewShot(Callback):
         seen = 0
         totals = {'loss': 0, self.metric_name: 0}
         for batch_index, batch in enumerate(self.taskloader):
-            x, y = self.prepare_batch(batch)
+            input_ids, attention_mask, label = self.prepare_batch(batch)
 
             loss, y_pred = self.eval_fn(
                 self.model,
                 self.optimiser,
                 self.loss_fn,
-                x,
-                y,
+                input_ids,
+                attention_mask,
+                label,
                 n_shot=self.n_shot,
                 k_way=self.k_way,
                 q_queries=self.q_queries,
