@@ -131,6 +131,13 @@ class EvaluateFewShot(Callback):
         totals = {'loss': 0, self.metric_name: 0}
         for batch_index, batch in enumerate(self.taskloader):
             input_ids, attention_mask, label = self.prepare_batch(batch)
+            
+            input_ids = torch.squeeze(input_ids, dim=1)
+            attention_mask = torch.squeeze(attention_mask, dim=1)
+            
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            label = label.to(device)
 
             loss, y_pred = self.eval_fn(
                 self.model,

@@ -37,16 +37,16 @@ torch.backends.cudnn.benchmark = True
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset')
 parser.add_argument('--distance', default='l2')
-parser.add_argument('--n-train', default=1, type=int)
-parser.add_argument('--n-test', default=1, type=int)
-parser.add_argument('--k-train', default=60, type=int)
-parser.add_argument('--k-test', default=5, type=int)
+parser.add_argument('--n-train', default=5, type=int)
+parser.add_argument('--n-test', default=5, type=int)
+parser.add_argument('--k-train', default=10, type=int)
+parser.add_argument('--k-test', default=10, type=int)
 parser.add_argument('--q-train', default=5, type=int)
-parser.add_argument('--q-test', default=1, type=int)
+parser.add_argument('--q-test', default=5, type=int)
 args = parser.parse_args()
 
 evaluation_episodes = 1000
-episodes_per_epoch = 100
+episodes_per_epoch = 10
 
 if args.dataset == 'omniglot':
     n_epochs = 40
@@ -59,7 +59,7 @@ elif args.dataset == 'miniImageNet':
     num_input_channels = 3
     drop_lr_every = 40
 elif args.dataset == 'clinic150':
-    n_epochs = 5
+    n_epochs = 6
     dataset_class = ClinicDataset
     num_input_channels = 150
     drop_lr_every = 2
