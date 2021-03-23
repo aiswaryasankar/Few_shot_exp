@@ -132,6 +132,8 @@ class EvaluateFewShot(Callback):
         for batch_index, batch in enumerate(self.taskloader):
             input_ids, attention_mask, label = self.prepare_batch(batch)
             
+            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            
             input_ids = torch.squeeze(input_ids, dim=1)
             attention_mask = torch.squeeze(attention_mask, dim=1)
             

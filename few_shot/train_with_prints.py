@@ -100,8 +100,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
     print('num_batches: ', num_batches)
     
     batch_size = dataloader.batch_size
-    
-    print('batch_size: ', batch_size)
+   
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
@@ -173,7 +172,13 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             loss, y_pred = fit_function(model, optimiser, loss_fn, input_ids, attention_mask, label, **fit_function_kwargs)
             batch_logs['loss'] = loss.item()
-                     
+
+            try:
+                print('After Loss/Pred') 
+                gpu_dict =  get_gpu_info()
+                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
+            except:
+                pass 
                                 
 
             # Loops through all metrics
