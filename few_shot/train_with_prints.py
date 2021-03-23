@@ -140,8 +140,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
         for batch_index, batch in enumerate(dataloader):
 
             batch_logs = dict(batch=batch_index, size=(batch_size or 1))
-            
-            print('batch size: ' , len(batch)) 
+           
 
             callbacks.on_batch_begin(batch_index, batch_logs)
 
@@ -174,13 +173,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
 
             loss, y_pred = fit_function(model, optimiser, loss_fn, input_ids, attention_mask, label, **fit_function_kwargs)
             batch_logs['loss'] = loss.item()
-            
-            try:
-                print('After Loss/Pred') 
-                gpu_dict =  get_gpu_info()
-                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
-            except:
-                pass            
+                     
                                 
 
             # Loops through all metrics
@@ -192,13 +185,7 @@ def fit(model: Module, optimiser: Optimizer, loss_fn: Callable, epochs: int, dat
  #               if torch.is_tensor(obj) or (hasattr(obj, 'data') and torch.is_tensor(obj.data)):
  #                   del obj
             torch.cuda.empty_cache()   
-
-            try:
-                print('After Tensor Delete') 
-                gpu_dict =  get_gpu_info()
-                print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
-            except:
-                pass             
+         
 
         # Run on epoch end
         callbacks.on_epoch_end(epoch, epoch_logs)
