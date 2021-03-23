@@ -6,6 +6,7 @@ import torch
 from few_shot.metrics import categorical_accuracy
 from few_shot.callbacks import Callback
 
+import wandb
 
 class NShotTaskSampler(Sampler):
     def __init__(self,
@@ -162,6 +163,8 @@ class EvaluateFewShot(Callback):
 
         logs[self.prefix + 'loss'] = totals['loss'] / seen
         logs[self.metric_name] = totals[self.metric_name] / seen
+        
+        wandb.log({"Loss": logs[self.prefix + 'loss'], "accuracy": logs[self.metric_name]})
 
 
 def prepare_nshot_task(n: int, k: int, q: int) -> Callable:

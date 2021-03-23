@@ -19,6 +19,7 @@ from few_shot.utils import setup_dirs
 from few_shot.utils import get_gpu_info
 from config import PATH
 import wandb
+from transformers import AdamW
 
 
 gpu_dict =  get_gpu_info()
@@ -45,8 +46,8 @@ parser.add_argument('--q-train', default=2, type=int)
 parser.add_argument('--q-test', default=2, type=int)
 args = parser.parse_args()
 
-evaluation_episodes = 100
-episodes_per_epoch = 10
+evaluation_episodes = 1000
+episodes_per_epoch = 100
 
 if args.dataset == 'omniglot':
     n_epochs = 40
@@ -102,14 +103,11 @@ sweep_config = {
       'goal': 'maximize'
     },
     'parameters': {
-        'learning_rate': {
+        'lr': {
             'values': [0.0001, 0.00001, 0.000001]
         },
-        'optimizer': {
-            'values': ['adam', 'sgd']
-        },
-        "batch_size": {
-            'values': [8,16]
+        'optimiser': {
+            'values': ['adam', 'adamw']
         }
     }
 }
@@ -217,16 +215,20 @@ try:
 except:
     pass
 
-fit(
-    model,
-    optimiser,
-    loss_fn,
-    epochs=n_epochs,
-    dataloader=train_taskloader,
-    prepare_batch=prepare_nshot_task(args.n_train, args.k_train, args.q_train),
-    callbacks=callbacks,
-    metrics=['categorical_accuracy'],
-    fit_function=proto_net_episode,
-    fit_function_kwargs={'n_shot': args.n_train, 'k_way': args.k_train, 'q_queries': args.q_train, 'train': True,
-                         'distance': args.distance},
+sweep_id = wandb.sweep(sweep_config, entity="zerodezibels", project="intent_classifier_protonet")
+
+wandb.agent(sweep_id, fit(
+                            model,
+                            optimiser,
+                            loss_fn,
+                            epochs=n_epochs,
+                            dataloader=train_taskloader,
+                            prepare_batch=prepare_nshot_task(args.n_train, args.k_train, args.q_train),
+                            callbacks=callbacks,
+                            metrics=['categorical_accuracy'],
+                            fit_function=proto_net_episode,
+                            fit_function_kwargs={'n_shot': args.n_train, 'k_way': args.k_train, 'q_queries': args.q_train, 'train': True,
+                                                 'distance': args.distance},
+                        )
 )
+
