@@ -46,8 +46,8 @@ parser.add_argument('--q-train', default=2, type=int)
 parser.add_argument('--q-test', default=2, type=int)
 args = parser.parse_args()
 
-evaluation_episodes = 1000
-episodes_per_epoch = 100
+evaluation_episodes = 100
+episodes_per_epoch = 10
 
 if args.dataset == 'omniglot':
     n_epochs = 40
@@ -112,8 +112,8 @@ sweep_config = {
     }
 }
 config_defaults = {
-      'learning_rate': 0.00001,
-      'optimizer': 'adam',
+      'lr': 0.00001,
+      'optimiser': 'adam',
       'batch_size': 16,
   }
 
@@ -168,8 +168,15 @@ wandb.watch(model)
 ############
 # Training #
 ############
+
+from transformers import AdamW
+
 print(f'Training Prototypical network on {args.dataset}...')
-optimiser = Adam(model.parameters(), lr=1e-3)
+if wandb.config.optimiser == 'adam':
+    optimiser = Adam(model.parameters(), lr=wandb.config.lr)
+else:
+    optimiser = AdamW(model.parameters(), lr=wandb.config.lr)
+
 #optimiser = AdamW(optimizer_grouped_parameters, lr=3e-5)
 #loss_fn = torch.nn.NLLLoss().cuda()
 
@@ -217,18 +224,18 @@ except:
 
 sweep_id = wandb.sweep(sweep_config, entity="zerodezibels", project="intent_classifier_protonet")
 
-wandb.agent(sweep_id, fit(
-                            model,
-                            optimiser,
-                            loss_fn,
-                            epochs=n_epochs,
-                            dataloader=train_taskloader,
-                            prepare_batch=prepare_nshot_task(args.n_train, args.k_train, args.q_train),
-                            callbacks=callbacks,
-                            metrics=['categorical_accuracy'],
-                            fit_function=proto_net_episode,
-                            fit_function_kwargs={'n_shot': args.n_train, 'k_way': args.k_train, 'q_queries': args.q_train, 'train': True,
-                                                 'distance': args.distance},
+wandb.agent(sweep_id, function = fit(
+                                        model,
+                                        optimiser,
+                                        loss_fn,
+                                        epochs=n_epochs,
+                                        dataloader=train_taskloader,
+                                        prepare_batch=prepare_nshot_task(args.n_train, args.k_train, args.q_train),
+                                        callbacks=callbacks,
+                                        metrics=['categorical_accuracy'],
+                                        fit_function=proto_net_episode,
+                                        fit_function_kwargs={'n_shot': args.n_train, 'k_way': args.k_train, 'q_queries': args.q_train, 'train': True,
+                                                             'distance': args.distance},
                         )
 )
 
