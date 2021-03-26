@@ -17,6 +17,8 @@ def train_sweep():
     from config import PATH
     import wandb
     from transformers import AdamW
+    
+    import torch
 
     gpu_dict =  get_gpu_info()
     print('Total GPU Mem: {} , Used GPU Mem: {}, Used Percent: {}'.format(gpu_dict['mem_total'], gpu_dict['mem_used'], gpu_dict['mem_used_percent']))
