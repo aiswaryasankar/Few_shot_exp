@@ -1,5 +1,5 @@
 
-def train_sweep()
+def train_sweep():
 
 
     from torch.optim import Adam
