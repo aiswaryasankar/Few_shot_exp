@@ -44,8 +44,8 @@ def train_sweep():
     parser.add_argument('--q-test', default=2, type=int)
     args = parser.parse_args()
 
-    evaluation_episodes = 100
-    episodes_per_epoch = 10
+    evaluation_episodes = 1000
+    episodes_per_epoch = 100
 
     if args.dataset == 'omniglot':
         n_epochs = 40
@@ -130,6 +130,11 @@ def train_sweep():
 
     #model = XLNetForSequenceClassification.from_pretrained('xlnet-base-cased', num_labels=150)
     #model.cuda()    
+    
+    try:
+        del model
+    except:
+        print("Cannot delete model. No model with name 'model' exists")    
 
     model = XLNetForEmbedding(num_input_channels)
     model.to(device, dtype=torch.double)
