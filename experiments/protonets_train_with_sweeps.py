@@ -32,7 +32,7 @@ def train_sweep()
     # Parameters #
     ##############
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset')
+    parser.add_argument('--dataset', default='clinic150')
     parser.add_argument('--distance', default='l2')
     parser.add_argument('--n-train', default=5, type=int)
     parser.add_argument('--n-test', default=2, type=int)
