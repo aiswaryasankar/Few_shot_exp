@@ -11,7 +11,7 @@ def train_sweep():
     from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
     from few_shot.proto import proto_net_episode
     from few_shot.train_with_prints import fit
-    from few_shot.callbacks import *
+    from few_shot.callbacks import CallbackList, Callback, DefaultCallback, ProgressBarLogger, CSVLogger, EvaluateMetrics, ReduceLROnPlateau, ModelCheckpoint, LearningRateScheduler
     from few_shot.utils import setup_dirs
     from few_shot.utils import get_gpu_info
     from config import PATH
