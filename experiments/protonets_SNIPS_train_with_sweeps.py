@@ -6,7 +6,7 @@ def train_sweep():
     from torch.utils.data import DataLoader
     import argparse
 
-    from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
+    from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset, SNIPSDataset
     from few_shot.models import XLNetForEmbedding
     from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
     from few_shot.proto import proto_net_episode
@@ -80,17 +80,16 @@ def train_sweep():
     ###################
     # Create datasets #
     ###################
-    #train_df = dataset_class('train')
     
-    df = dataset_class()
-    
-    train_df, val_df = train_test_split(df, test_size=0.4, train_size=0.6, random_state=42, shuffle=True, stratify=df['label'])
-    
+    train_df = dataset_class('train')
+   
     train_taskloader = DataLoader(
         train_df,
         batch_sampler=NShotTaskSampler(train_df, episodes_per_epoch, args.n_train, args.k_train, args.q_train)
     )
-    #val_df = dataset_class('val')
+    
+    val_df = dataset_class('val')
+    
     evaluation_taskloader = DataLoader(
         val_df,
         batch_sampler=NShotTaskSampler(val_df, episodes_per_epoch, args.n_test, args.k_test, args.q_test)
