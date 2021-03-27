@@ -78,17 +78,16 @@ from sklearn.model_selection import train_test_split
 ###################
 # Create datasets #
 ###################
-#train_df = dataset_class('train')
 
-df = dataset_class()
 
-train_df, val_df = train_test_split(df, test_size=0.4, train_size=0.6, random_state=42, shuffle=True, stratify=df['label'])
+train_df = dataset_class('train')
 
 train_taskloader = DataLoader(
     train_df,
     batch_sampler=NShotTaskSampler(train_df, episodes_per_epoch, args.n_train, args.k_train, args.q_train)
 )
-#val_df = dataset_class('val')
+
+val_df = dataset_class('val')
 evaluation_taskloader = DataLoader(
     val_df,
     batch_sampler=NShotTaskSampler(val_df, episodes_per_epoch, args.n_test, args.k_test, args.q_test)

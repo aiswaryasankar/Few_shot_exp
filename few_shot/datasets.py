@@ -322,6 +322,10 @@ class SNIPSDataset(Dataset):
 
     def __init__(self):
 
+        if subset not in ('train', 'val', 'test'):
+            raise(ValueError, 'subset must be one of (train, val, test)')
+
+        self.subset = subset
         self.df = self.process_SNIPS_data()
         self.df = self.df.assign(id=self.df.index.values)
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
@@ -442,11 +446,16 @@ class SNIPSDataset(Dataset):
 
         train_df = get_df_from_json_file(intent_list=labels, ds_type='train', label_map = label_map)
         val_df = get_df_from_json_file(intent_list=labels, ds_type='validate', label_map = label_map)
-
-        print('train_df: ', len(train_df))
-        print('val_df: ', len(val_df))
-
-        df = pd.concat([train_df, val_df] , ignore_index = True)
+        
+        if self.subset == 'train':
+            df = train_df
+            print('train_df: ', len(train_df))
+        elif self.subset == 'val':
+            df = val_df
+            print('val_df: ', len(val_df))
+        else:
+            df = train_df
+            print('train_df: ', len(train_df))
 
         return df
 
