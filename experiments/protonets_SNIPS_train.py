@@ -4,7 +4,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 import argparse
 
-from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
+from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset, SNIPSDataset
 from few_shot.models import XLNetForEmbedding
 from few_shot.core import NShotTaskSampler, EvaluateFewShot, prepare_nshot_task
 from few_shot.proto import proto_net_episode
