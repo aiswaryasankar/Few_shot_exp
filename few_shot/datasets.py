@@ -19,6 +19,11 @@ from torch import nn
 
 from config import DATA_PATH
 
+# For SNIPS:
+
+import unicodedata
+import requests
+
 
 class OmniglotDataset(Dataset):
     def __init__(self, subset):
@@ -223,7 +228,7 @@ class ClinicDataset(Dataset):
             raise(ValueError, 'subset must be one of (train, val, test)')
 
         self.subset = subset
-        self.df = self.process_data()
+        self.df = self.process_c150_data()
         self.df = self.df.assign(id=self.df.index.values)
         self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
         self.max_len = 64
@@ -256,7 +261,7 @@ class ClinicDataset(Dataset):
 
         return [input_ids, attention_mask.flatten(), torch.tensor(label, dtype=torch.long)]
 
-    def process_data(self):
+    def process_c150_data(self):
         """
             Subset tells you whether to return train, val or test.
         """
@@ -313,4 +318,135 @@ class ClinicDataset(Dataset):
         return df
 
 
+class SNIPSDataset(Dataset):
+
+    def __init__(self):
+
+        self.df = self.process_SNIPS_data()
+        self.df = self.df.assign(id=self.df.index.values)
+        self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
+        self.max_len = 64
+
+    def __len__(self):
+        return len(self.text)
+
+    def __getitem__(self, item):
+        text = str(self.df["text"][item])
+        label = self.df["label"][item]
+
+        encoding = self.tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,
+            max_length=self.max_len,
+            return_token_type_ids=False,
+            pad_to_max_length=False,
+            return_attention_mask=True,
+            return_tensors='pt',
+            truncation=True
+        )
+
+        input_ids = pad_sequences(encoding['input_ids'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        input_ids = input_ids.astype(dtype = 'int64')
+        input_ids = torch.tensor(input_ids)
+
+        attention_mask = pad_sequences(encoding['attention_mask'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        attention_mask = attention_mask.astype(dtype = 'int64')
+        attention_mask = torch.tensor(attention_mask)
+
+        return [input_ids, attention_mask.flatten(), torch.tensor(label, dtype=torch.long)]
+
+    def process_SNIPS_data(self):
+
+        intents = ['AddToPlaylist','BookRestaurant', 'GetWeather', 'PlayMusic', 'RateBook', 'SearchCreativeWork', 'SearchScreeningEvent']
+        ds_types = ['train', 'validate']
+        ds_suffixes = ['', '_full']
+        url_list = []
+
+        for intent in intents:
+          for ds_type in ds_types:
+              if ds_type == 'train':
+                  for ds_suffix in ds_suffixes:
+                      url = 'https://raw.githubusercontent.com/sonos/nlu-benchmark/master/2017-06-custom-intent-engines/' + \
+                          intent + '/' + ds_type + '_' + intent + ds_suffix + '.json'
+                      url_list.append(url)
+              else:
+                  url = 'https://raw.githubusercontent.com/sonos/nlu-benchmark/master/2017-06-custom-intent-engines/' + \
+                      intent + '/' + ds_type + '_' + intent + '.json'   
+                  url_list.append(url)
+
+        for url in url_list:
+          write_file = url.rsplit('/', 1)[-1]
+          r = requests.get(url, allow_redirects=True)
+          if r.status_code == 200:
+              print('writing file ', write_file, '....')
+              open(write_file, 'wb').write(r.content)
+          else:
+              print(write_file, ' Not Valid URL')
+
+        
+
+        def strip_accents(text):
+          """
+          Strip accents from input String.
+
+          :param text: The input string.
+          :type text: String.
+
+          :returns: The processed String.
+          :rtype: String.
+          """
+          try:
+              text = unicode(text, 'utf-8')
+          except (TypeError, NameError): # unicode is a default on python 3 
+              pass
+          text = unicodedata.normalize('NFD', text)
+          text = text.encode('ascii', 'ignore')
+          text = text.decode("utf-8")
+          return str(text)
+
+        ## Function to conver JSON to DF
+
+        def get_df_from_json_file(intent_list, ds_type, label_map):
+          
+          text_arr = []
+
+          for intent in intent_list:
+              json_file = ds_type+ '_' + intent +'.json'
+              with open(json_file, encoding='utf-8') as fh:
+                  json_data = json.load(fh)
+                  for i, example in enumerate(json_data[intent]):
+                      utt_dict = {}
+                      utt_arr = []
+                      for dict_list in example['data']:
+                          if 'text' in dict_list.keys():
+                              text_accent_fix = strip_accents(dict_list['text']).lower()
+                              utt_arr.append(text_accent_fix)
+
+                      utter = ''.join(utt_arr)
+                      utt_dict['text'] = utter
+                      utt_dict['label'] = label_map[intent]
+
+                      text_arr.append(utt_dict)
+                              
+          return pd.DataFrame(text_arr).sample(frac=1).reset_index(drop=True)    
+
+        labels = ['AddToPlaylist','BookRestaurant',  'PlayMusic', 'SearchCreativeWork', 'SearchScreeningEvent', 'GetWeather', 'RateBook']
+
+        label_map = {'AddToPlaylist' : 1,
+                  'BookRestaurant' : 2,  
+                  'PlayMusic' : 3, 
+                  'SearchCreativeWork' : 4, 
+                  'SearchScreeningEvent' : 5,
+                  'GetWeather' : 6, 
+                  'RateBook' : 7}
+
+        train_df = get_df_from_json_file(intent_list=labels, ds_type='train', label_map = label_map)
+        val_df = get_df_from_json_file(intent_list=labels, ds_type='validate', label_map = label_map)
+
+        print('train_df: ', len(train_df))
+        print('val_df: ', len(val_df))
+
+        df = pd.concat([train_df, val_df] , ignore_index = True)
+
+        return df
 
