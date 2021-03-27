@@ -64,7 +64,7 @@ def train_sweep():
         drop_lr_every = 2
     elif args.dataset == 'SNIPS':
         n_epochs = 5
-        dataset_class = SNIPS
+        dataset_class = SNIPSDataset
         num_input_channels = 150
         drop_lr_every = 2        
     else:
