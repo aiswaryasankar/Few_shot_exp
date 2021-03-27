@@ -320,7 +320,7 @@ class ClinicDataset(Dataset):
 
 class SNIPSDataset(Dataset):
 
-    def __init__(self):
+    def __init__(self, subset):
 
         if subset not in ('train', 'val', 'test'):
             raise(ValueError, 'subset must be one of (train, val, test)')
