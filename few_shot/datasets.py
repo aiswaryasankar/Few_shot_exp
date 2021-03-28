@@ -532,7 +532,7 @@ class CustomDataset(Dataset):
         df_cs['label'].replace(cs_label_map, inplace=True)
         
         df_tmp = df_cs[['text', 'label']]
-        train_df, val_df = train_test_split(df_tmp, test_size=0.5, train_size=0.5, random_state=42, shuffle=True, stratify=df['label'])
+        train_df, val_df = train_test_split(df_tmp, test_size=0.5, train_size=0.5, random_state=42, shuffle=True, stratify=df_tmp['label'])
         train_df.reset_index(inplace=True, drop= True)
         val_df.reset_index(inplace=True, drop= True)
         ## Function to conver JSON to DF
