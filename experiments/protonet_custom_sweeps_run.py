@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import wandb
+from experiments.protonets_custom_train_with_sweeps import train_sweep
+
+if __name__ == '__main__':
+    sweep_config = {
+        'method': 'bayes', #grid, random
+        'metric': {
+          'name': 'accuracy',
+          'goal': 'maximize'
+        },
+        'parameters': {
+            'lr': {
+                'values': [0.0001, 0.00001, 0.000001]
+            },
+            'optimiser': {
+                'values': ['adam', 'adamw']
+            }
+        }
+    }
+    sweep_id = wandb.sweep(sweep_config, entity="zerodezibels", project="IC_protonet_custom")
+    wandb.agent(sweep_id, function=train_sweep)    
+
+

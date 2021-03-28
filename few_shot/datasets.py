@@ -25,6 +25,9 @@ import unicodedata
 import requests
 
 
+from sklearn.model_selection import train_test_split
+
+
 class OmniglotDataset(Dataset):
     def __init__(self, subset):
         """Dataset class representing Omniglot dataset
@@ -459,3 +462,93 @@ class SNIPSDataset(Dataset):
 
         return df
 
+class CustomDataset(Dataset):
+
+    def __init__(self, subset):
+
+        if subset not in ('train', 'val', 'test'):
+            raise(ValueError, 'subset must be one of (train, val, test)')
+
+        self.subset = subset
+        self.df = self.process_custom_data()
+        self.df = self.df.assign(id=self.df.index.values)
+        self.tokenizer = XLNetTokenizer.from_pretrained('xlnet-base-cased')
+        self.max_len = 64
+
+    def __len__(self):
+        return len(self.text)
+
+    def __getitem__(self, item):
+        text = str(self.df["text"][item])
+        label = self.df["label"][item]
+
+        encoding = self.tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,
+            max_length=self.max_len,
+            return_token_type_ids=False,
+            pad_to_max_length=False,
+            return_attention_mask=True,
+            return_tensors='pt',
+            truncation=True
+        )
+
+        input_ids = pad_sequences(encoding['input_ids'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        input_ids = input_ids.astype(dtype = 'int64')
+        input_ids = torch.tensor(input_ids)
+
+        attention_mask = pad_sequences(encoding['attention_mask'], maxlen=self.max_len, dtype=torch.Tensor ,truncating="post",padding="post")
+        attention_mask = attention_mask.astype(dtype = 'int64')
+        attention_mask = torch.tensor(attention_mask)
+
+        return [input_ids, attention_mask.flatten(), torch.tensor(label, dtype=torch.long)]
+
+    def process_custom_data(self):
+
+        cs_label_map = {'add_content' : 1,
+                        'edit_remove_content' : 2,
+                        'layer' : 3,
+                        'admin' : 4,
+                        'video editing' : 5,
+                        'video_play' : 6,
+                        'tools_select' : 7
+
+        }
+        
+
+        custom_ds_url = 'https://raw.githubusercontent.com/zerodezibels/xcs224u_ic/main/dataset/intent_class_photo_vid_app.csv'
+        custom_ds_file = custom_ds_url.rsplit('/', 1)[-1]
+        r = requests.get(custom_ds_url, allow_redirects=True)
+
+        if r.status_code == 200:
+            print('writing file ', custom_ds_file, '....')
+            open(custom_ds_file, 'wb').write(r.content)
+        else:
+            print(custom_ds_url, ' Not Valid URL')
+
+        
+        df_cs = pd.read_csv(custom_ds_file, header=0)
+        df_cs.rename(columns={'utterance': 'text', 'intent': 'label'}, inplace=True)
+        df_cs['label'].replace(cs_label_map, inplace=True)
+        
+        df_tmp = df_cs[['text', 'label']]
+        train_df, val_df = train_test_split(df_tmp, test_size=0.5, train_size=0.5, random_state=42, shuffle=True, stratify=df['label'])
+        train_df.reset_index(inplace=True, drop= True)
+        val_df.reset_index(inplace=True, drop= True)
+        ## Function to conver JSON to DF
+
+        
+        
+        if self.subset == 'train':
+            df = train_df
+            print('train_df: ', len(train_df))
+        elif self.subset == 'val':
+            df = val_df
+            print('val_df: ', len(val_df))
+        else:
+            df = train_df
+            print('train_df: ', len(train_df))
+
+        return df
+        
+        
