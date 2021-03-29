@@ -4,7 +4,7 @@ from experiments.protonets_custom_train_with_sweeps import train_sweep
 
 if __name__ == '__main__':
     sweep_config = {
-        'method': 'bayes', #grid, random
+        'method': 'grid', #grid, random
         'metric': {
           'name': 'accuracy',
           'goal': 'maximize'

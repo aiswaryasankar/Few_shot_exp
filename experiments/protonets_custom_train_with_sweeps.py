@@ -68,10 +68,10 @@ def train_sweep():
         num_input_channels = 150
         drop_lr_every = 2        
     elif args.dataset == 'Custom':
-        n_epochs = 40
+        n_epochs = 20
         dataset_class = CustomDataset
         num_input_channels = 150
-        drop_lr_every = 10
+        drop_lr_every = 5
     else:
         raise(ValueError, 'Unsupported dataset')
 
