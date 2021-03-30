@@ -1,11 +1,16 @@
 """
 Reproduce Model-agnostic Meta-learning results (supervised only) of Finn et al
 """
+
+import sys
+from os import path
+sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+
 from torch.utils.data import DataLoader
 from torch import nn
 import argparse
 
-from few_shot.datasets import OmniglotDataset, MiniImageNet
+from few_shot.datasets import OmniglotDataset, MiniImageNet, ClinicDataset
 from few_shot.core import NShotTaskSampler, create_nshot_task_label, EvaluateFewShot
 from few_shot.maml import meta_gradient_step
 from few_shot.models import FewShotClassifier
@@ -49,6 +54,12 @@ elif args.dataset == 'miniImageNet':
     dataset_class = MiniImageNet
     fc_layer_size = 1600
     num_input_channels = 3
+elif args.dataset == 'clinic150':
+    n_epochs = 80
+    dataset_class = ClinicDataset
+    fc_layer_size = 64
+    num_input_channels = 3
+    drop_lr_every = 40
 else:
     raise(ValueError('Unsupported dataset'))
 
@@ -60,14 +71,14 @@ print(param_str)
 ###################
 # Create datasets #
 ###################
-background = dataset_class('background')
+background = dataset_class('train')
 background_taskloader = DataLoader(
     background,
     batch_sampler=NShotTaskSampler(background, args.epoch_len, n=args.n, k=args.k, q=args.q,
                                    num_tasks=args.meta_batch_size),
     num_workers=8
 )
-evaluation = dataset_class('evaluation')
+evaluation = dataset_class('val')
 evaluation_taskloader = DataLoader(
     evaluation,
     batch_sampler=NShotTaskSampler(evaluation, args.eval_batches, n=args.n, k=args.k, q=args.q,
@@ -140,3 +151,9 @@ fit(
                          'order': args.order, 'device': device, 'inner_train_steps': args.inner_train_steps,
                          'inner_lr': args.inner_lr},
 )
+
+if __name__ == '__main__':
+    if __package__ is None:
+        import sys
+        from os import path
+        sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
